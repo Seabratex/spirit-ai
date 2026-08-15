@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spirit</title>
+  <style>
+    :root{--deep:#0a0f1e;--navy:#101a30;--panel:#0d1526;--line:#1f2c47;--text:#e9e6db;--dim:#8b93a8;--gold:#d6dce6;--pulse:#7fd4c1;--danger:#f0a0a0}
+    *{box-sizing:border-box;margin:0;padding:0} html,body{height:100%} body{background:var(--deep);color:var(--text);font-family:Georgia,serif;display:flex;flex-direction:column;overflow:hidden}
+    header{display:flex;align-items:center;justify-content:space-between;padding:18px 28px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,var(--navy),var(--deep))}.brand{display:flex;gap:14px;align-items:baseline}.brand h1{font-size:26px;letter-spacing:6px;font-weight:400}.mark,.status,.who,h2,button{font-family:'Courier New',monospace}.mark{font-size:11px;color:var(--dim);border:1px solid var(--line);padding:3px 8px}.status{display:flex;gap:10px;align-items:center;font-size:12px}.dot{width:8px;height:8px;border-radius:50%;background:var(--pulse);box-shadow:0 0 8px var(--pulse)}.status.off .dot{background:#4a3030;box-shadow:none}
+    button{cursor:pointer;border-radius:2px}.power-btn,.new-chat,.mode-btn{background:transparent;border:1px solid var(--gold);color:var(--gold);font-size:11px;padding:8px 14px}.mode-btn.active{background:var(--gold);color:var(--deep)}
+
+    .layout{flex:1;display:grid;grid-template-columns:220px 1fr 300px;min-height:0}
+
+    /* Coluna histórico (amarela no desenho) */
+    .history-col{background:var(--panel);border-right:1px solid var(--line);padding:20px 14px;overflow-y:auto;min-height:0}
+    .history-col h2{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+    .history-item{position:relative;width:100%;text-align:left;color:var(--text);background:none;border:0;border-left:2px solid var(--line);padding:10px 26px 10px 10px;margin:4px 0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:12.5px}
+    .history-item:hover,.history-item.selected{border-left-color:var(--pulse);background:#121e35}
+    .history-item.pinned{border-left-color:var(--gold)}
+    .history-date{display:block;color:var(--dim);font:9.5px 'Courier New',monospace;margin-top:4px}
+    .history-actions{position:absolute;right:4px;top:6px;display:flex;gap:3px}
+    .icon-btn{background:none;border:0;color:var(--dim);font-size:11px;padding:2px 4px;line-height:1}
+    .icon-btn:hover{color:var(--gold)}
+    .empty{color:var(--dim);font-size:12px;padding:10px 4px}
+
+    /* Coluna central (verde no desenho) */
+    .conversation{display:flex;flex-direction:column;border-right:1px solid var(--line);min-height:0}
+    .messages{flex:1;min-height:0;padding:32px 40px;overflow-y:auto;display:flex;flex-direction:column;gap:22px}
+    .msg{max-width:85%;line-height:1.6;font-size:15px;white-space:pre-wrap}.msg.user{align-self:flex-end}.msg.spirit{align-self:flex-start}
+    .who{display:block;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;color:var(--dim)}.msg.spirit .who{color:var(--gold)}
+    .typing{align-self:flex-start;color:var(--dim);font-family:'Courier New',monospace;font-size:12px;display:flex;align-items:center;gap:8px}
+    .typing i{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--pulse);animation:blink 1.2s infinite}.typing i:nth-child(3){animation-delay:.15s}.typing i:nth-child(4){animation-delay:.3s}@keyframes blink{50%{opacity:.2;transform:translateY(-2px)}}
+    .sources{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:6px}.sources a{color:var(--gold);font-size:12px;text-decoration:none;font-family:'Courier New',monospace}.sources a:hover{text-decoration:underline}
+    .composer{display:flex;gap:10px;padding:20px 40px 28px;border-top:1px solid var(--line)}input{flex:1;background:var(--navy);border:1px solid var(--line);color:var(--text);font:14px Georgia,serif;padding:14px 16px;outline:none}input:focus{border-color:var(--gold)}.composer button{background:var(--gold);color:var(--deep);border:0;padding:0 22px}.composer button:disabled{opacity:.5;cursor:wait}
+    .notice{color:var(--danger);font-size:12px;padding:0 40px 12px;display:none}.notice.show{display:block}
+
+    /* Coluna raciocínio (vermelha no desenho) */
+    .reasoning-col{background:var(--panel);padding:20px 16px;overflow-y:auto;min-height:0}
+    .reasoning-col h2{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:10px}
+    .reasoning-col h2 span{color:var(--danger)}
+    .reasoning-entry{font-family:'Courier New',monospace;font-size:11.5px;line-height:1.7;color:var(--dim);border-left:2px solid var(--line);padding-left:10px;margin-bottom:14px;white-space:pre-wrap}
+    .reasoning-entry.active{border-left-color:var(--danger);color:var(--text)}
+    .reasoning-entry .tag{color:var(--danger);display:block;font-size:10px;letter-spacing:1px;margin-bottom:3px}
+
+    @media(max-width:900px){.layout{grid-template-columns:1fr}.history-col,.reasoning-col{display:none}.messages{padding:24px}.composer{padding:16px}.brand .mark{display:none}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand"><h1>Spirit</h1><span class="mark">v0.4 — local</span></div>
+    <div class="status" id="statusBox"><span class="dot"></span><span id="statusText">CONECTANDO</span><button class="power-btn" id="powerBtn">...</button></div>
+  </header>
+
+  <div class="layout">
+    <aside class="history-col">
+      <h2>Conversas <button class="new-chat" id="newChatBtn">+ NOVA</button></h2>
+      <div id="history"><p class="empty">Carregando…</p></div>
+    </aside>
+
+    <main class="conversation">
+      <div class="messages" id="messages"><div class="msg spirit"><span class="who">Spirit</span><span class="content">ola seabra! O que você quer explorar hoje?</span></div></div>
+      <p class="notice" id="notice"></p>
+      <div class="composer">
+        <button class="mode-btn active" id="modeChat" title="Conversar">CHAT</button>
+        <button class="mode-btn" id="modeResearch" title="Pesquisar na web">PESQUISAR</button>
+        <button class="mode-btn" id="modeYoutube" title="Pesquisar vídeos no YouTube">YOUTUBE</button>
+        <input id="input" type="text" placeholder="Converse com a Spirit..." autocomplete="off">
+        <button id="sendBtn">ENVIAR</button>
+      </div>
+    </main>
+
+    <aside class="reasoning-col">
+      <h2>O que está <span>acontecendo</span></h2>
+      <div id="reasoning"><div class="reasoning-entry"><span class="tag">SISTEMA</span>aguardando interação</div></div>
+    </aside>
+  </div>
+
+  <script>
+    const API_BASE = 'http://127.0.0.1:8000';
+    const messages = document.querySelector('#messages'), input = document.querySelector('#input'), sendBtn = document.querySelector('#sendBtn');
+    const history = document.querySelector('#history'), notice = document.querySelector('#notice'), powerBtn = document.querySelector('#powerBtn'), statusBox = document.querySelector('#statusBox'), statusText = document.querySelector('#statusText');
+    const modeChatBtn = document.querySelector('#modeChat'), modeResearchBtn = document.querySelector('#modeResearch'), modeYoutubeBtn = document.querySelector('#modeYoutube');
+    const reasoningBox = document.querySelector('#reasoning');
+    let active = false, sending = false, mode = 'chat', conversationId = localStorage.getItem('spirit_conversation_id') || null;
+    let pinned = JSON.parse(localStorage.getItem('spirit_pinned') || '[]');
+
+    function scrollDown(){messages.scrollTop = messages.scrollHeight}
+    function clearNotice(){notice.textContent='';notice.classList.remove('show')}
+    function showNotice(message){notice.textContent=message;notice.classList.add('show')}
+    function friendlyError(error){if(error instanceof TypeError)return 'Não foi possível alcançar a Spirit. Verifique se o backend está em execução.';if(error.message.includes('desativada'))return 'A Spirit está desativada. Ative-a para continuar.';return 'Não foi possível concluir a solicitação. ' + error.message}
+
+    // ---- Painel de raciocínio (coluna vermelha) ----
+    function addReasoning(tag, text, isActive){
+      const div=document.createElement('div');
+      div.className='reasoning-entry'+(isActive?' active':'');
+      div.innerHTML='<span class="tag">'+tag+'</span>'+text;
+      reasoningBox.appendChild(div);
+      reasoningBox.scrollTop = reasoningBox.scrollHeight;
+      return div;
+    }
+    function clearReasoning(){ reasoningBox.replaceChildren(); }
+
+    function setMode(newMode){
+      mode = newMode;
+      modeChatBtn.classList.toggle('active', mode === 'chat');
+      modeResearchBtn.classList.toggle('active', mode === 'research');
+      modeYoutubeBtn.classList.toggle('active', mode === 'youtube');
+      input.placeholder = mode === 'chat' ? 'Converse com a Spirit...' : mode === 'research' ? 'O que você quer pesquisar na web?' : 'Que vídeos você quer que a Spirit assista?';
+    }
+    modeChatBtn.addEventListener('click', () => setMode('chat'));
+    modeResearchBtn.addEventListener('click', () => setMode('research'));
+    modeYoutubeBtn.addEventListener('click', () => setMode('youtube'));
+
+    function addMessage(text, who){const box=document.createElement('div'), label=document.createElement('span'), content=document.createElement('span');box.className='msg '+who;label.className='who';label.textContent=who==='user'?'Você':'Spirit';content.className='content';content.textContent=text;box.append(label,content);messages.appendChild(box);scrollDown();return box}
+
+    function addSources(box, sources){
+      if(!sources || !sources.length) return;
+      const wrap = document.createElement('div');
+      wrap.className = 'sources';
+      sources.forEach(s => {
+        const a = document.createElement('a');
+        a.href = s.url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+        a.textContent = '↳ ' + s.title;
+        wrap.appendChild(a);
+      });
+      box.appendChild(wrap);
+      scrollDown();
+    }
+
+    function addTyping(label){const el=document.createElement('div');el.className='typing';el.setAttribute('aria-live','polite');const span=document.createElement('span');span.textContent=label||'Pensando';el.appendChild(span);for(let i=0;i<3;i++)el.appendChild(document.createElement('i'));messages.appendChild(el);scrollDown();return el}
+    function renderMessages(items){messages.replaceChildren();items.forEach(item=>addMessage(item.content,item.role==='user'?'user':'spirit'))}
+    async function readJson(response){const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.detail||`Erro ${response.status}`);return data}
+
+    async function syncStatus(){try{const data=await readJson(await fetch(API_BASE+'/status'));active=data.active;statusBox.classList.toggle('off',!active);statusText.textContent=active?'ATIVA':'DESATIVADA';powerBtn.textContent=active?'DESATIVAR':'ATIVAR';}catch(error){statusBox.classList.add('off');statusText.textContent='OFFLINE';powerBtn.textContent='INDISPONÍVEL';showNotice(friendlyError(error))}}
+    function formatDate(value){return new Date(value).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'})}
+
+    // ---- Histórico (coluna amarela) com fixar/excluir ----
+    function savePinned(){ localStorage.setItem('spirit_pinned', JSON.stringify(pinned)); }
+    function togglePin(id, ev){
+      ev.stopPropagation();
+      if(pinned.includes(id)) pinned = pinned.filter(p=>p!==id); else pinned.push(id);
+      savePinned(); loadHistory();
+    }
+    function deleteConversation(id, ev){
+      ev.stopPropagation();
+      if(!confirm('Remover esta conversa da lista? (o histórico salvo no servidor não é apagado)')) return;
+      let hidden = JSON.parse(localStorage.getItem('spirit_hidden') || '[]');
+      hidden.push(id);
+      localStorage.setItem('spirit_hidden', JSON.stringify(hidden));
+      if(id === conversationId) newConversation();
+      loadHistory();
+    }
+
+    async function loadHistory(){
+      try{
+        const data=await readJson(await fetch(API_BASE+'/conversations'));
+        const hidden = JSON.parse(localStorage.getItem('spirit_hidden') || '[]');
+        let items = data.conversations.filter(c=>!hidden.includes(c.conversation_id));
+        items.sort((a,b)=> (pinned.includes(b.conversation_id)?1:0) - (pinned.includes(a.conversation_id)?1:0));
+        history.replaceChildren();
+        if(!items.length){history.innerHTML='<p class="empty">Nenhuma conversa salva.</p>';return}
+        items.forEach(c=>{
+          const b=document.createElement('button'), date=document.createElement('span'), actions=document.createElement('span');
+          const isPinned = pinned.includes(c.conversation_id);
+          b.className='history-item'+(c.conversation_id===conversationId?' selected':'')+(isPinned?' pinned':'');
+          b.textContent=(isPinned?'★ ':'')+c.preview.slice(0,60);
+          date.className='history-date';date.textContent=formatDate(c.updated_at);b.appendChild(date);
+
+          actions.className='history-actions';
+          const pinBtn=document.createElement('button');pinBtn.className='icon-btn';pinBtn.textContent=isPinned?'📌':'📍';pinBtn.title='Fixar/desafixar';
+          pinBtn.addEventListener('click', ev=>togglePin(c.conversation_id, ev));
+          const delBtn=document.createElement('button');delBtn.className='icon-btn';delBtn.textContent='✕';delBtn.title='Excluir da lista';
+          delBtn.addEventListener('click', ev=>deleteConversation(c.conversation_id, ev));
+          actions.append(pinBtn, delBtn);
+          b.appendChild(actions);
+
+          b.addEventListener('click',()=>openConversation(c.conversation_id));
+          history.appendChild(b);
+        });
+      }catch(error){history.innerHTML='<p class="empty">Histórico indisponível.</p>'}
+    }
+    async function openConversation(id){try{clearNotice();const data=await readJson(await fetch(API_BASE+'/conversations/'+encodeURIComponent(id)+'/messages'));conversationId=id;localStorage.setItem('spirit_conversation_id',id);renderMessages(data.messages);clearReasoning();loadHistory()}catch(error){showNotice(friendlyError(error))}}
+    function newConversation(){conversationId=null;localStorage.removeItem('spirit_conversation_id');messages.replaceChildren();addMessage('Nova conversa iniciada. Como posso ajudar?','spirit');clearNotice();clearReasoning();loadHistory();input.focus()}
+
+    // ---- Chat com raciocínio separado ----
+    // O backend manda cada chunk como uma linha JSON: {"type":"reasoning"|"content","text":"..."}
+    // Raciocínio vai para o painel lateral; conteúdo final vai para o chat.
+    async function sendChat(text){
+      addMessage(text,'user');
+      const typing=addTyping('Pensando');
+      addReasoning('SOLICITAÇÃO', text, true);
+      let answer=null;
+      let buffer='';
+      try{
+        const res=await fetch(API_BASE+'/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,conversation_id:conversationId})});
+        if(!res.ok)throw new Error((await res.json().catch(()=>({}))).detail||`Erro ${res.status}`);
+        const id=res.headers.get('X-Conversation-ID');
+        if(id){conversationId=id;localStorage.setItem('spirit_conversation_id',id)}
+        if(!res.body)throw new Error('A resposta não chegou em formato streaming.');
+
+        const reader=res.body.getReader(),decoder=new TextDecoder();
+        let full='';
+        let reasoningEntry=null;
+
+        while(true){
+          const {done,value}=await reader.read();
+          if(done)break;
+          buffer += decoder.decode(value, {stream:true});
+          let lines = buffer.split('\n');
+          buffer = lines.pop(); // guarda linha incompleta para o próximo pedaço
+
+          for(const line of lines){
+            if(!line.trim()) continue;
+            let chunk;
+            try{ chunk = JSON.parse(line); } catch(e){
+              // Fallback: backend antigo (texto puro, sem separar raciocínio) — trata tudo como conteúdo.
+              chunk = { type:'content', text: line };
+            }
+            if(chunk.type === 'reasoning'){
+              if(!reasoningEntry) reasoningEntry = addReasoning('RACIOCÍNIO', '', true);
+              reasoningEntry.innerHTML = '<span class="tag">RACIOCÍNIO</span>' + (reasoningEntry.textContent + chunk.text);
+              reasoningBox.scrollTop = reasoningBox.scrollHeight;
+            } else if(chunk.type === 'content'){
+              full += chunk.text;
+              if(!answer){typing.remove();answer=addMessage('', 'spirit')}
+              answer.querySelector('.content').textContent=full;
+              scrollDown();
+            }
+          }
+        }
+        if(!answer){typing.remove();addMessage('Não recebi uma resposta. Tente novamente.','spirit')}
+        addReasoning('CONCLUÍDO', 'resposta entregue', false);
+        await loadHistory();
+      }catch(error){typing.remove();addMessage(friendlyError(error),'spirit');showNotice(friendlyError(error));addReasoning('ERRO', error.message, false)}
+    }
+
+    async function sendResearch(term){
+      addMessage(term,'user');
+      const typing=addTyping('Pesquisando na web');
+      addReasoning('PESQUISA WEB', 'buscando: ' + term, true);
+      try{
+        const res=await fetch(API_BASE+'/research',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({term})});
+        const data=await readJson(res);
+        typing.remove();
+        const box=addMessage(data.summary,'spirit');
+        addSources(box, data.sources);
+        addReasoning('FONTES', (data.sources||[]).length + ' resultado(s) analisado(s)', false);
+      }catch(error){typing.remove();addMessage(friendlyError(error),'spirit');showNotice(friendlyError(error));addReasoning('ERRO', error.message, false)}
+    }
+
+    async function sendYoutube(term){
+      addMessage(term,'user');
+      const typing=addTyping('Assistindo vídeos no YouTube');
+      addReasoning('PESQUISA YOUTUBE', 'buscando vídeos sobre: ' + term, true);
+      try{
+        const res=await fetch(API_BASE+'/research/youtube',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({term, max_results:3})});
+        const data=await readJson(res);
+        typing.remove();
+        const box=addMessage(data.summary,'spirit');
+        const sources=(data.videos||[]).map(v=>({title:v.title,url:v.url}));
+        addSources(box, sources);
+        addReasoning('VÍDEOS', (data.videos||[]).length + ' vídeo(s) com transcrição analisado(s)', false);
+      }catch(error){typing.remove();addMessage(friendlyError(error),'spirit');showNotice(friendlyError(error));addReasoning('ERRO', error.message, false)}
+    }
+
+    async function send(){
+      const text=input.value.trim();
+      if(!text||!active||sending)return;
+      clearNotice();sending=true;sendBtn.disabled=true;input.disabled=true;
+      input.value='';
+      if(mode==='research'){ await sendResearch(text); } else if(mode==='youtube'){ await sendYoutube(text); } else { await sendChat(text); }
+      sending=false;sendBtn.disabled=false;input.disabled=false;input.focus();
+    }
+
+    sendBtn.addEventListener('click',send);
+    input.addEventListener('keydown',event=>{if(event.key==='Enter')send()});
+    document.querySelector('#newChatBtn').addEventListener('click',newConversation);
+    powerBtn.addEventListener('click',async()=>{try{const data=await readJson(await fetch(API_BASE+'/power',{method:'POST'}));active=data.active;statusBox.classList.toggle('off',!active);statusText.textContent=active?'ATIVA':'DESATIVADA';powerBtn.textContent=active?'DESATIVAR':'ATIVAR';clearNotice()}catch(error){showNotice(friendlyError(error))}});
+
+    syncStatus();loadHistory();
+  </script>
+</body>
+</html>
