@@ -1,0 +1,14 @@
+# Segredos locais
+.env
+backend/.env
+
+# Ambiente Python e cache
+.venv/
+backend/.venv/
+__pycache__/
+*.py[cod]
+
+# Dados locais da Spirit
+*.db
+*.sqlite
+*.sqlite3

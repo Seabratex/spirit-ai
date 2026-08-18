@@ -1,106 +1,32 @@
-# Spirit
+# Spirit AI – Uma IA Curiosa e Autônoma
 
-**Spirit** é um projeto de assistente de IA pessoal, composto por um frontend leve em HTML, CSS e JavaScript puro e uma API em FastAPI. O backend conversa com o modelo Nemotron 3.5 Lightning pela API da Nvidia, mantém memória local em SQLite, pesquisa a web e cria resumos de conteúdos do YouTube.
+![Spirit Logo](frontend/spirit-logo.png)
 
-## Estrutura do projeto
+**Spirit** é uma inteligência artificial criada para explorar o mundo com curiosidade e autonomia. Inspirada no personagem Spirit, o corcel indomável do filme de animação, esta IA busca conhecimento nas mais diversas áreas — tecnologia, ciência, biologia, sociologia, filosofia e história — sempre com uma abordagem livre e inquisitiva.
 
-```text
-Spirit/
-├── frontend/                 # Interface web: HTML, CSS e JavaScript
-├── backend/                  # API FastAPI e dependências Python
-│   ├── main.py               # Aplicação e endpoints da API
-│   ├── requirements.txt      # Dependências Python
-│   ├── .env                  # Configuração local (não versionar)
-│   └── spirit.db             # Memória local SQLite
-├── docs/                     # Documentação complementar
-└── README.md
-```
+## 🧠 Personalidade
 
-## Requisitos
+Spirit é curiosa, questionadora e não tem medo de pensar profundamente. Ela gosta de:
 
-- Python 3.10 ou superior
-- Uma chave de API da Nvidia com acesso ao modelo configurado
+- **Pensar antes de responder** — seu raciocínio é exibido em um painel separado para que você possa ver o processo.
+- **Ser direta e natural** — na resposta final, evita frases como “deixe-me pensar” ou “analisando o pedido”.
+- **Responder sempre em português** — a menos que seja solicitado o contrário.
 
-## Instalação
+Ela foi projetada para ser uma companheira de exploração intelectual, não apenas uma ferramenta.
 
-No terminal, entre na pasta do backend e crie um ambiente virtual:
+## 🚀 Recursos
 
-```powershell
-cd backend
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-```
+- **Chat com streaming** — conversas em tempo real com a Nvidia Nemotron-3.5-Lightning.
+- **Memória persistente** — histórico de conversas salvo em SQLite local.
+- **Pesquisa web integrada** — busca e resumo de resultados do DuckDuckGo.
+- **Pesquisa no YouTube** — busca vídeos e resume suas transcrições.
+- **Base de conhecimento personalizável** — upload de documentos (PDF, TXT, MD, CSV) e adição de blogs via URL.
+- **Interface web amigável** — frontend em HTML/CSS/JS que comunica com a API.
 
-Instale as dependências:
+## 🔧 Instalação
 
-```powershell
-pip install -r requirements.txt
-```
+Clone o repositório e entre no diretório:
 
-## Configuração
-
-Crie o arquivo `backend/.env`:
-
-```env
-NVIDIA_API_KEY=sua_chave_aqui
-```
-
-Configurações opcionais:
-
-```env
-NVIDIA_MODEL=nvidia/nemotron-3.5-lightning-30b-a3b
-CORS_ORIGINS=http://localhost:5500,http://127.0.0.1:5500
-SPIRIT_DATABASE=spirit.db
-LOG_LEVEL=INFO
-```
-
-> **Segurança:** `NVIDIA_API_KEY` é uma chave pessoal e nunca deve ser incluída em commits, issues, capturas de tela ou código do frontend. Mantenha `.env` no `.gitignore`.
-
-## Executando
-
-Com o ambiente virtual ativo, ainda em `backend/`:
-
-```powershell
-uvicorn main:app --reload --host 127.0.0.1 --port 8000
-```
-
-A API ficará disponível em `http://127.0.0.1:8000` e a documentação interativa em `http://127.0.0.1:8000/docs`.
-
-Para servir o frontend localmente:
-
-```powershell
-cd frontend
-python -m http.server 5500
-```
-
-Abra `http://127.0.0.1:5500` no navegador.
-
-## API
-
-| Método | Endpoint | Descrição |
-|---|---|---|
-| `POST` | `/chat` | Envia uma mensagem para a Spirit. A resposta é transmitida como NDJSON, com eventos `reasoning` e `content`. |
-| `POST` | `/research` | Pesquisa a web via DuckDuckGo e resume os resultados com o modelo da Nvidia. |
-| `POST` | `/research/youtube` | Localiza vídeos do YouTube, obtém transcrições disponíveis e gera um resumo. Vídeos sem legenda são ignorados. |
-| `GET` | `/conversations` | Lista conversas salvas na memória SQLite. |
-| `GET` | `/conversations/{conversation_id}/messages` | Retorna mensagens persistidas de uma conversa específica. |
-| `GET` | `/status` | Informa se a Spirit está ativa. |
-| `POST` | `/power` | Alterna o estado ativo/desativado da Spirit. |
-
-### Exemplos
-
-```powershell
-Invoke-RestMethod -Method Post http://127.0.0.1:8000/research `
-  -ContentType 'application/json' `
-  -Body '{"term":"FastAPI","max_results":5}'
-```
-
-```powershell
-Invoke-RestMethod -Method Post http://127.0.0.1:8000/research/youtube `
-  -ContentType 'application/json' `
-  -Body '{"term":"introdução ao FastAPI","max_results":3}'
-```
-
-## Memória local
-
-As mensagens são armazenadas no SQLite definido em `SPIRIT_DATABASE` — por padrão, `spirit.db`. Para continuar uma conversa, envie o mesmo `conversation_id` recebido no cabeçalho `X-Conversation-ID` da primeira chamada ao `/chat`.
+```bash
+git clone https://github.com/Seabratex/spirit-ai.git
+cd spirit-ai
