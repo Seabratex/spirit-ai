@@ -18,6 +18,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, File, HTTPException, Request, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
 from openai import APIConnectionError, APIError, AuthenticationError, OpenAI, RateLimitError
 from pydantic import AnyHttpUrl, BaseModel, Field, field_validator
 from youtube_transcript_api import YouTubeTranscriptApi
@@ -157,17 +158,27 @@ memory = Memory(DATABASE_PATH)
 rag = RAGStore(persist_path=CHROMA_PATH, model_name=RAG_MODEL_NAME)
 spirit_state = {"active": True}
 
+# Cliente OpenAI otimizado – reutiliza a instância
+_nvidia_client_instance: OpenAI | None = None
 
-def nvidia_client() -> OpenAI:
-    key = os.getenv("NVIDIA_API_KEY")
-    if not key:
-        raise HTTPException(status_code=500, detail="NVIDIA_API_KEY não configurada no ambiente.")
-    return OpenAI(base_url="https://integrate.api.nvidia.com/v1", api_key=key, timeout=60.0, max_retries=2)
+def get_nvidia_client() -> OpenAI:
+    global _nvidia_client_instance
+    if _nvidia_client_instance is None:
+        key = os.getenv("NVIDIA_API_KEY")
+        if not key:
+            raise HTTPException(status_code=500, detail="NVIDIA_API_KEY não configurada no ambiente.")
+        _nvidia_client_instance = OpenAI(
+            base_url="https://integrate.api.nvidia.com/v1",
+            api_key=key,
+            timeout=60.0,
+            max_retries=2,
+        )
+    return _nvidia_client_instance
 
 
 def call_model(messages: list[dict[str, str]], *, max_tokens: int = 700) -> str:
     try:
-        completion = nvidia_client().chat.completions.create(
+        completion = get_nvidia_client().chat.completions.create(
             model=MODEL_NAME,
             messages=messages,
             temperature=0.4,
@@ -197,6 +208,14 @@ app.add_middleware(
     allow_headers=["Content-Type", "Authorization"],
     expose_headers=["X-Conversation-ID"],
 )
+
+# Servir o frontend (pasta 'frontend/') via StaticFiles
+frontend_path = Path(__file__).parent / "frontend"
+if frontend_path.exists():
+    app.mount("/", StaticFiles(directory=str(frontend_path), html=True), name="frontend")
+    logger.info("Frontend servido em / a partir de %s", frontend_path.resolve())
+else:
+    logger.warning("Pasta 'frontend' não encontrada – o index.html não será servido.")
 
 
 @app.on_event("startup")
@@ -379,7 +398,7 @@ def chat(req: ChatRequest) -> StreamingResponse:
                 break
 
         try:
-            completion = nvidia_client().chat.completions.create(
+            completion = get_nvidia_client().chat.completions.create(
                 model=MODEL_NAME,
                 messages=messages,
                 temperature=0.7,
@@ -388,7 +407,6 @@ def chat(req: ChatRequest) -> StreamingResponse:
                 stream=True,
                 extra_body={
                     "chat_template_kwargs": {"enable_thinking": True},
-                    # "thinking_token_budget": 512,  # REMOVIDO – não suportado pela API atual
                 }
             )
             for chunk in completion:
@@ -488,7 +506,8 @@ def research_youtube(req: YouTubeResearchRequest) -> dict[str, object]:
             logger.info("Vídeo %s ignorado: transcrição indisponível (%s)", video_id, type(exc).__name__)
             continue
 
-        channel = "Canal não informado pela busca"
+        # Tenta obter o canal a partir dos dados de busca
+        channel = item.get("source") or item.get("author") or "Canal não informado pela busca"
         video = {
             "title": item.get("title") or "Sem título",
             "url": url or f"https://www.youtube.com/watch?v={video_id}",
