@@ -178,7 +178,7 @@ def get_nvidia_client() -> OpenAI:
 
 def call_model(messages: list[dict[str, str]], *, max_tokens: int = 700) -> str:
     try:
-        completion = get_nvidia_client().chat.completions.create(
+        completion = nvidia_client().chat.completions.create(
             model=MODEL_NAME,
             messages=messages,
             temperature=0.4,
@@ -398,7 +398,7 @@ def chat(req: ChatRequest) -> StreamingResponse:
                 break
 
         try:
-            completion = get_nvidia_client().chat.completions.create(
+            completion = nvidia_client().chat.completions.create(
                 model=MODEL_NAME,
                 messages=messages,
                 temperature=0.7,
@@ -407,6 +407,7 @@ def chat(req: ChatRequest) -> StreamingResponse:
                 stream=True,
                 extra_body={
                     "chat_template_kwargs": {"enable_thinking": True},
+                    # "thinking_token_budget": 512,  # REMOVIDO – não suportado pela API atual
                 }
             )
             for chunk in completion:
