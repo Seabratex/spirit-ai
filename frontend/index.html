@@ -1,49 +1,540 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Spirit</title>
   <style>
-    :root{--deep:#0a0f1e;--navy:#101a30;--panel:#0d1526;--line:#1f2c47;--text:#e9e6db;--dim:#8b93a8;--gold:#d6dce6;--pulse:#7fd4c1;--danger:#f0a0a0}
-    *{box-sizing:border-box;margin:0;padding:0} html,body{height:100%} body{background:var(--deep);color:var(--text);font-family:Georgia,serif;display:flex;flex-direction:column;overflow:hidden}
-    header{display:flex;align-items:center;justify-content:space-between;padding:18px 28px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,var(--navy),var(--deep))}.brand{display:flex;gap:14px;align-items:baseline}.brand h1{font-size:26px;letter-spacing:6px;font-weight:400}.mark,.status,.who,h2,button{font-family:'Courier New',monospace}.mark{font-size:11px;color:var(--dim);border:1px solid var(--line);padding:3px 8px}.status{display:flex;gap:10px;align-items:center;font-size:12px}.dot{width:8px;height:8px;border-radius:50%;background:var(--pulse);box-shadow:0 0 8px var(--pulse)}.status.off .dot{background:#4a3030;box-shadow:none}
-    button{cursor:pointer;border-radius:2px}.power-btn,.new-chat,.mode-btn{background:transparent;border:1px solid var(--gold);color:var(--gold);font-size:11px;padding:8px 14px}.mode-btn.active{background:var(--gold);color:var(--deep)}
+    :root {
+      --deep: #0a0f1e;
+      --navy: #101a30;
+      --panel: #0d1526;
+      --line: #1f2c47;
+      --text: #e9e6db;
+      --dim: #8b93a8;
+      --gold: #d6dce6;
+      --pulse: #7fd4c1;
+      --danger: #f0a0a0;
+      --success: #7fd4c1;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html,
+    body {
+      height: 100%;
+    }
+    body {
+      background: var(--deep);
+      color: var(--text);
+      font-family: Georgia, serif;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 28px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, var(--navy), var(--deep));
+    }
+    .brand {
+      display: flex;
+      gap: 14px;
+      align-items: baseline;
+    }
+    .brand h1 {
+      font-size: 26px;
+      letter-spacing: 6px;
+      font-weight: 400;
+    }
+    .mark,
+    .status,
+    .who,
+    h2,
+    button {
+      font-family: 'Courier New', monospace;
+    }
+    .mark {
+      font-size: 11px;
+      color: var(--dim);
+      border: 1px solid var(--line);
+      padding: 3px 8px;
+    }
+    .status {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      font-size: 12px;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--pulse);
+      box-shadow: 0 0 8px var(--pulse);
+    }
+    .status.off .dot {
+      background: #4a3030;
+      box-shadow: none;
+    }
+    button {
+      cursor: pointer;
+      border-radius: 2px;
+    }
+    .power-btn,
+    .new-chat,
+    .mode-btn {
+      background: transparent;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      font-size: 11px;
+      padding: 8px 14px;
+    }
+    .mode-btn.active {
+      background: var(--gold);
+      color: var(--deep);
+    }
 
-    .layout{flex:1;display:grid;grid-template-columns:220px 1fr 300px;min-height:0}
+    .layout {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 220px 1fr 340px;
+      min-height: 0;
+    }
 
-    /* Coluna histórico (amarela no desenho) */
-    .history-col{background:var(--panel);border-right:1px solid var(--line);padding:20px 14px;overflow-y:auto;min-height:0}
-    .history-col h2{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
-    .history-item{position:relative;width:100%;text-align:left;color:var(--text);background:none;border:0;border-left:2px solid var(--line);padding:10px 26px 10px 10px;margin:4px 0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:12.5px}
-    .history-item:hover,.history-item.selected{border-left-color:var(--pulse);background:#121e35}
-    .history-item.pinned{border-left-color:var(--gold)}
-    .history-date{display:block;color:var(--dim);font:9.5px 'Courier New',monospace;margin-top:4px}
-    .history-actions{position:absolute;right:4px;top:6px;display:flex;gap:3px}
-    .icon-btn{background:none;border:0;color:var(--dim);font-size:11px;padding:2px 4px;line-height:1}
-    .icon-btn:hover{color:var(--gold)}
-    .empty{color:var(--dim);font-size:12px;padding:10px 4px}
+    /* Coluna histórico */
+    .history-col {
+      background: var(--panel);
+      border-right: 1px solid var(--line);
+      padding: 20px 14px;
+      overflow-y: auto;
+      min-height: 0;
+    }
+    .history-col h2 {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--dim);
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .history-item {
+      position: relative;
+      width: 100%;
+      text-align: left;
+      color: var(--text);
+      background: none;
+      border: 0;
+      border-left: 2px solid var(--line);
+      padding: 10px 26px 10px 10px;
+      margin: 4px 0;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      font-size: 12.5px;
+    }
+    .history-item:hover,
+    .history-item.selected {
+      border-left-color: var(--pulse);
+      background: #121e35;
+    }
+    .history-item.pinned {
+      border-left-color: var(--gold);
+    }
+    .history-date {
+      display: block;
+      color: var(--dim);
+      font: 9.5px 'Courier New', monospace;
+      margin-top: 4px;
+    }
+    .history-actions {
+      position: absolute;
+      right: 4px;
+      top: 6px;
+      display: flex;
+      gap: 3px;
+    }
+    .icon-btn {
+      background: none;
+      border: 0;
+      color: var(--dim);
+      font-size: 11px;
+      padding: 2px 4px;
+      line-height: 1;
+    }
+    .icon-btn:hover {
+      color: var(--gold);
+    }
+    .empty {
+      color: var(--dim);
+      font-size: 12px;
+      padding: 10px 4px;
+    }
 
-    /* Coluna central (verde no desenho) */
-    .conversation{display:flex;flex-direction:column;border-right:1px solid var(--line);min-height:0}
-    .messages{flex:1;min-height:0;padding:32px 40px;overflow-y:auto;display:flex;flex-direction:column;gap:22px}
-    .msg{max-width:85%;line-height:1.6;font-size:15px;white-space:pre-wrap}.msg.user{align-self:flex-end}.msg.spirit{align-self:flex-start}
-    .who{display:block;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;color:var(--dim)}.msg.spirit .who{color:var(--gold)}
-    .typing{align-self:flex-start;color:var(--dim);font-family:'Courier New',monospace;font-size:12px;display:flex;align-items:center;gap:8px}
-    .typing i{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--pulse);animation:blink 1.2s infinite}.typing i:nth-child(3){animation-delay:.15s}.typing i:nth-child(4){animation-delay:.3s}@keyframes blink{50%{opacity:.2;transform:translateY(-2px)}}
-    .sources{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:6px}.sources a{color:var(--gold);font-size:12px;text-decoration:none;font-family:'Courier New',monospace}.sources a:hover{text-decoration:underline}
-    .composer{display:flex;gap:10px;padding:20px 40px 28px;border-top:1px solid var(--line)}input{flex:1;background:var(--navy);border:1px solid var(--line);color:var(--text);font:14px Georgia,serif;padding:14px 16px;outline:none}input:focus{border-color:var(--gold)}.composer button{background:var(--gold);color:var(--deep);border:0;padding:0 22px}.composer button:disabled{opacity:.5;cursor:wait}
-    .notice{color:var(--danger);font-size:12px;padding:0 40px 12px;display:none}.notice.show{display:block}
+    /* Coluna central */
+    .conversation {
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--line);
+      min-height: 0;
+    }
+    .messages {
+      flex: 1;
+      min-height: 0;
+      padding: 32px 40px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+    .msg {
+      max-width: 85%;
+      line-height: 1.6;
+      font-size: 15px;
+      white-space: pre-wrap;
+    }
+    .msg.user {
+      align-self: flex-end;
+    }
+    .msg.spirit {
+      align-self: flex-start;
+    }
+    .who {
+      display: block;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      color: var(--dim);
+    }
+    .msg.spirit .who {
+      color: var(--gold);
+    }
+    .typing {
+      align-self: flex-start;
+      color: var(--dim);
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .typing i {
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--pulse);
+      animation: blink 1.2s infinite;
+    }
+    .typing i:nth-child(3) {
+      animation-delay: 0.15s;
+    }
+    .typing i:nth-child(4) {
+      animation-delay: 0.3s;
+    }
+    @keyframes blink {
+      50% {
+        opacity: 0.2;
+        transform: translateY(-2px);
+      }
+    }
+    .sources {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .sources a {
+      color: var(--gold);
+      font-size: 12px;
+      text-decoration: none;
+      font-family: 'Courier New', monospace;
+    }
+    .sources a:hover {
+      text-decoration: underline;
+    }
+    .composer {
+      display: flex;
+      gap: 10px;
+      padding: 20px 40px 28px;
+      border-top: 1px solid var(--line);
+    }
+    .composer input {
+      flex: 1;
+      background: var(--navy);
+      border: 1px solid var(--line);
+      color: var(--text);
+      font: 14px Georgia, serif;
+      padding: 14px 16px;
+      outline: none;
+    }
+    .composer input:focus {
+      border-color: var(--gold);
+    }
+    .composer button {
+      background: var(--gold);
+      color: var(--deep);
+      border: 0;
+      padding: 0 22px;
+    }
+    .composer button:disabled {
+      opacity: 0.5;
+      cursor: wait;
+    }
+    .notice {
+      color: var(--danger);
+      font-size: 12px;
+      padding: 0 40px 12px;
+      display: none;
+    }
+    .notice.show {
+      display: block;
+    }
 
-    /* Coluna raciocínio (vermelha no desenho) */
-    .reasoning-col{background:var(--panel);padding:20px 16px;overflow-y:auto;min-height:0}
-    .reasoning-col h2{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:10px}
-    .reasoning-col h2 span{color:var(--danger)}
-    .reasoning-entry{font-family:'Courier New',monospace;font-size:11.5px;line-height:1.7;color:var(--dim);border-left:2px solid var(--line);padding-left:10px;margin-bottom:14px;white-space:pre-wrap}
-    .reasoning-entry.active{border-left-color:var(--danger);color:var(--text)}
-    .reasoning-entry .tag{color:var(--danger);display:block;font-size:10px;letter-spacing:1px;margin-bottom:3px}
+    /* ---------- COLUNA RACIOCÍNIO + CONHECIMENTO (REORGANIZADA) ---------- */
+    .reasoning-col {
+      background: var(--panel);
+      padding: 20px 16px;
+      overflow: hidden;       /* evita scroll na coluna inteira */
+      display: flex;
+      flex-direction: column;
+      height: 100%;           /* ocupa toda a altura da grid */
+      min-height: 0;
+    }
 
-    @media(max-width:900px){.layout{grid-template-columns:1fr}.history-col,.reasoning-col{display:none}.messages{padding:24px}.composer{padding:16px}.brand .mark{display:none}}
+    .reasoning-col h2 {
+      flex-shrink: 0;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--dim);
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+    }
+    .reasoning-col h2 span {
+      color: var(--danger);
+    }
+
+    /* Área de raciocínio – ocupa todo o espaço restante */
+    #reasoning {
+      flex: 1;
+      overflow-y: auto;
+      min-height: 0;
+      padding-right: 4px;      /* evita que o scroll encoste na borda */
+    }
+
+    .reasoning-entry {
+      font-family: 'Courier New', monospace;
+      font-size: 11.5px;
+      line-height: 1.7;
+      color: var(--dim);
+      border-left: 2px solid var(--line);
+      padding-left: 10px;
+      margin-bottom: 14px;
+      white-space: pre-wrap;
+    }
+    .reasoning-entry.active {
+      border-left-color: var(--danger);
+      color: var(--text);
+    }
+    .reasoning-entry .tag {
+      color: var(--danger);
+      display: block;
+      font-size: 10px;
+      letter-spacing: 1px;
+      margin-bottom: 3px;
+    }
+
+    /* Painel de conhecimento – fixo na parte inferior */
+    .knowledge-panel {
+      flex-shrink: 0;
+      margin-top: 12px;
+      border-top: 1px solid var(--line);
+      padding-top: 16px;
+      max-height: 45%;         /* evita que o painel tome toda a tela */
+      overflow-y: auto;       /* rola internamente se necessário */
+    }
+
+    .knowledge-panel h3 {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: 12px;
+    }
+    .knowledge-panel .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .knowledge-panel .field-group label {
+      font-size: 11px;
+      color: var(--dim);
+      font-family: 'Courier New', monospace;
+    }
+
+    /* Drop zone */
+    .drop-zone {
+      background: var(--navy);
+      border: 2px dashed var(--line);
+      border-radius: 4px;
+      padding: 18px 12px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--dim);
+      font-family: 'Courier New', monospace;
+      transition: border-color 0.2s, background 0.2s;
+      cursor: pointer;
+    }
+    .drop-zone.dragover {
+      border-color: var(--gold);
+      background: #1a2a45;
+    }
+    .drop-zone .clickable {
+      color: var(--gold);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .drop-zone input[type="file"] {
+      display: none;
+    }
+
+    .knowledge-panel .action-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .knowledge-panel .action-row button {
+      background: var(--gold);
+      color: var(--deep);
+      border: 0;
+      font-size: 11px;
+      padding: 6px 14px;
+      font-family: 'Courier New', monospace;
+    }
+    .knowledge-panel .action-row button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .knowledge-panel .action-row button.outline {
+      background: transparent;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+    }
+    .knowledge-panel .action-row button.danger {
+      background: transparent;
+      border: 1px solid var(--danger);
+      color: var(--danger);
+    }
+    .knowledge-status {
+      font-size: 11px;
+      font-family: 'Courier New', monospace;
+      margin-top: 4px;
+      color: var(--dim);
+      min-height: 1.2em;
+    }
+    .knowledge-status.success {
+      color: var(--success);
+    }
+    .knowledge-status.error {
+      color: var(--danger);
+    }
+    progress {
+      width: 100%;
+      height: 6px;
+      border-radius: 4px;
+      background: var(--line);
+      appearance: none;
+      -webkit-appearance: none;
+      margin-top: 4px;
+    }
+    progress::-webkit-progress-bar {
+      background: var(--line);
+      border-radius: 4px;
+    }
+    progress::-webkit-progress-value {
+      background: var(--pulse);
+      border-radius: 4px;
+    }
+    progress::-moz-progress-bar {
+      background: var(--pulse);
+      border-radius: 4px;
+    }
+
+    /* Lista de documentos */
+    .doc-list {
+      margin-top: 6px;
+      max-height: 120px;
+      overflow-y: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      border-top: 1px solid var(--line);
+      padding-top: 6px;
+    }
+    .doc-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .doc-item .name {
+      color: var(--text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 160px;
+    }
+    .doc-item .del-btn {
+      background: none;
+      border: 0;
+      color: var(--danger);
+      font-size: 12px;
+      cursor: pointer;
+      padding: 0 4px;
+    }
+    .doc-item .del-btn:hover {
+      color: #ff6666;
+    }
+    .doc-empty {
+      color: var(--dim);
+      font-size: 11px;
+      padding: 4px 0;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .history-col,
+      .reasoning-col {
+        display: none;
+      }
+      .messages {
+        padding: 24px;
+      }
+      .composer {
+        padding: 16px;
+      }
+      .brand .mark {
+        display: none;
+      }
+    }
   </style>
 </head>
 <body>
@@ -59,13 +550,13 @@
     </aside>
 
     <main class="conversation">
-      <div class="messages" id="messages"><div class="msg spirit"><span class="who">Spirit</span><span class="content">ola seabra! O que você quer explorar hoje?</span></div></div>
+      <div class="messages" id="messages"><div class="msg spirit"><span class="who">Spirit</span><span class="content">ola seabra!O que você quer explorar hoje?</span></div></div>
       <p class="notice" id="notice"></p>
       <div class="composer">
         <button class="mode-btn active" id="modeChat" title="Conversar">CHAT</button>
         <button class="mode-btn" id="modeResearch" title="Pesquisar na web">PESQUISAR</button>
         <button class="mode-btn" id="modeYoutube" title="Pesquisar vídeos no YouTube">YOUTUBE</button>
-        <input id="input" type="text" placeholder="Converse com a Spirit..." autocomplete="off">
+        <input id="input" type="text" placeholder="Converse com a Spirit..." autocomplete="off" />
         <button id="sendBtn">ENVIAR</button>
       </div>
     </main>
@@ -73,54 +564,151 @@
     <aside class="reasoning-col">
       <h2>O que está <span>acontecendo</span></h2>
       <div id="reasoning"><div class="reasoning-entry"><span class="tag">SISTEMA</span>aguardando interação</div></div>
+
+      <!-- PAINEL DE CONHECIMENTO -->
+      <div class="knowledge-panel">
+        <h3>📚 Base de conhecimento</h3>
+
+        <!-- Upload com drag & drop e múltiplos arquivos -->
+        <div class="field-group">
+          <label>Enviar documentos (PDF, TXT, MD, CSV)</label>
+          <div class="drop-zone" id="dropZone">
+            <p>Arraste arquivos aqui ou <span class="clickable" id="fileSelectTrigger">clique para selecionar</span></p>
+            <input type="file" id="fileInput" accept=".pdf,.txt,.md,.csv" multiple />
+          </div>
+          <div class="action-row">
+            <button id="uploadBtn">Indexar selecionados</button>
+            <button id="cancelUploadBtn" class="outline" style="display:none;">Cancelar</button>
+          </div>
+          <progress id="uploadProgress" value="0" max="100" style="display:none;"></progress>
+          <div id="uploadStatus" class="knowledge-status"></div>
+        </div>
+
+        <!-- Listagem de documentos -->
+        <div class="field-group">
+          <div class="action-row">
+            <button id="listDocsBtn" class="outline">📋 Listar documentos</button>
+            <button id="refreshDocsBtn" class="outline" style="font-size:10px;">↻</button>
+          </div>
+          <div id="documentsList" class="doc-list"><div class="doc-empty">Clique em "Listar documentos" para carregar.</div></div>
+        </div>
+
+        <!-- Adicionar blog por URL -->
+        <div class="field-group">
+          <label for="blogUrl">Adicionar blog (URL do artigo)</label>
+          <input type="url" id="blogUrl" placeholder="https://exemplo.com/artigo" />
+          <div class="action-row">
+            <button id="addBlogBtn">Adicionar</button>
+            <button id="refreshBlogsBtn" class="outline">↻ Atualizar blogs</button>
+          </div>
+          <div id="blogStatus" class="knowledge-status"></div>
+        </div>
+      </div>
     </aside>
   </div>
 
   <script>
     const API_BASE = 'http://127.0.0.1:8000';
-    const messages = document.querySelector('#messages'), input = document.querySelector('#input'), sendBtn = document.querySelector('#sendBtn');
-    const history = document.querySelector('#history'), notice = document.querySelector('#notice'), powerBtn = document.querySelector('#powerBtn'), statusBox = document.querySelector('#statusBox'), statusText = document.querySelector('#statusText');
-    const modeChatBtn = document.querySelector('#modeChat'), modeResearchBtn = document.querySelector('#modeResearch'), modeYoutubeBtn = document.querySelector('#modeYoutube');
+    const messages = document.querySelector('#messages'),
+      input = document.querySelector('#input'),
+      sendBtn = document.querySelector('#sendBtn');
+    const history = document.querySelector('#history'),
+      notice = document.querySelector('#notice'),
+      powerBtn = document.querySelector('#powerBtn'),
+      statusBox = document.querySelector('#statusBox'),
+      statusText = document.querySelector('#statusText');
+    const modeChatBtn = document.querySelector('#modeChat'),
+      modeResearchBtn = document.querySelector('#modeResearch'),
+      modeYoutubeBtn = document.querySelector('#modeYoutube');
     const reasoningBox = document.querySelector('#reasoning');
-    let active = false, sending = false, mode = 'chat', conversationId = localStorage.getItem('spirit_conversation_id') || null;
+    let active = false,
+      sending = false,
+      mode = 'chat',
+      conversationId = localStorage.getItem('spirit_conversation_id') || null;
     let pinned = JSON.parse(localStorage.getItem('spirit_pinned') || '[]');
 
-    function scrollDown(){messages.scrollTop = messages.scrollHeight}
-    function clearNotice(){notice.textContent='';notice.classList.remove('show')}
-    function showNotice(message){notice.textContent=message;notice.classList.add('show')}
-    function friendlyError(error){if(error instanceof TypeError)return 'Não foi possível alcançar a Spirit. Verifique se o backend está em execução.';if(error.message.includes('desativada'))return 'A Spirit está desativada. Ative-a para continuar.';return 'Não foi possível concluir a solicitação. ' + error.message}
+    // ---- Elementos do painel de conhecimento ----
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const fileSelectTrigger = document.getElementById('fileSelectTrigger');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const cancelUploadBtn = document.getElementById('cancelUploadBtn');
+    const uploadProgress = document.getElementById('uploadProgress');
+    const uploadStatus = document.getElementById('uploadStatus');
+    const blogUrlInput = document.getElementById('blogUrl');
+    const addBlogBtn = document.getElementById('addBlogBtn');
+    const refreshBlogsBtn = document.getElementById('refreshBlogsBtn');
+    const blogStatus = document.getElementById('blogStatus');
+    const listDocsBtn = document.getElementById('listDocsBtn');
+    const refreshDocsBtn = document.getElementById('refreshDocsBtn');
+    const documentsList = document.getElementById('documentsList');
 
-    // ---- Painel de raciocínio (coluna vermelha) ----
-    function addReasoning(tag, text, isActive){
-      const div=document.createElement('div');
-      div.className='reasoning-entry'+(isActive?' active':'');
-      div.innerHTML='<span class="tag">'+tag+'</span>'+text;
+    // ---- Estado do upload ----
+    let uploadCanceled = false;
+    let uploadAbortController = null;
+    let isUploading = false;
+
+    // ---- Funções auxiliares ----
+    function scrollDown() { messages.scrollTop = messages.scrollHeight; }
+    function clearNotice() { notice.textContent = '';
+      notice.classList.remove('show'); }
+    function showNotice(message) { notice.textContent = message;
+      notice.classList.add('show'); }
+    function friendlyError(error) {
+      if (error instanceof TypeError) return 'Não foi possível alcançar a Spirit. Verifique se o backend está em execução.';
+      if (error.message.includes('desativada')) return 'A Spirit está desativada. Ative-a para continuar.';
+      return 'Não foi possível concluir a solicitação. ' + error.message;
+    }
+
+    // ---- Painel de raciocínio ----
+    function addReasoning(tag, text, isActive) {
+      const div = document.createElement('div');
+      div.className = 'reasoning-entry' + (isActive ? ' active' : '');
+      div.innerHTML = '<span class="tag">' + tag + '</span>' + text;
       reasoningBox.appendChild(div);
       reasoningBox.scrollTop = reasoningBox.scrollHeight;
       return div;
     }
-    function clearReasoning(){ reasoningBox.replaceChildren(); }
+    function clearReasoning() { reasoningBox.replaceChildren(); }
 
-    function setMode(newMode){
+    // ---- Modos ----
+    function setMode(newMode) {
       mode = newMode;
       modeChatBtn.classList.toggle('active', mode === 'chat');
       modeResearchBtn.classList.toggle('active', mode === 'research');
       modeYoutubeBtn.classList.toggle('active', mode === 'youtube');
-      input.placeholder = mode === 'chat' ? 'Converse com a Spirit...' : mode === 'research' ? 'O que você quer pesquisar na web?' : 'Que vídeos você quer que a Spirit assista?';
+      input.placeholder = mode === 'chat' ? 'Converse com a Spirit...' : mode === 'research' ? 'O que você quer pesquisar na web?' :
+        'Que vídeos você quer que a Spirit assista?';
     }
     modeChatBtn.addEventListener('click', () => setMode('chat'));
     modeResearchBtn.addEventListener('click', () => setMode('research'));
     modeYoutubeBtn.addEventListener('click', () => setMode('youtube'));
 
-    function addMessage(text, who){const box=document.createElement('div'), label=document.createElement('span'), content=document.createElement('span');box.className='msg '+who;label.className='who';label.textContent=who==='user'?'Você':'Spirit';content.className='content';content.textContent=text;box.append(label,content);messages.appendChild(box);scrollDown();return box}
+    // ---- Mensagens ----
+    function addMessage(text, who) {
+      const box = document.createElement('div'),
+        label = document.createElement('span'),
+        content = document.createElement('span');
+      box.className = 'msg ' + who;
+      label.className = 'who';
+      label.textContent = who === 'user' ? 'Você' : 'Spirit';
+      content.className = 'content';
+      content.textContent = text;
+      box.append(label, content);
+      messages.appendChild(box);
+      scrollDown();
+      return box;
+    }
 
-    function addSources(box, sources){
-      if(!sources || !sources.length) return;
+    function addSources(box, sources) {
+      if (!sources || !sources.length) return;
       const wrap = document.createElement('div');
       wrap.className = 'sources';
       sources.forEach(s => {
         const a = document.createElement('a');
-        a.href = s.url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+        a.href = s.url;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
         a.textContent = '↳ ' + s.title;
         wrap.appendChild(a);
       });
@@ -128,157 +716,585 @@
       scrollDown();
     }
 
-    function addTyping(label){const el=document.createElement('div');el.className='typing';el.setAttribute('aria-live','polite');const span=document.createElement('span');span.textContent=label||'Pensando';el.appendChild(span);for(let i=0;i<3;i++)el.appendChild(document.createElement('i'));messages.appendChild(el);scrollDown();return el}
-    function renderMessages(items){messages.replaceChildren();items.forEach(item=>addMessage(item.content,item.role==='user'?'user':'spirit'))}
-    async function readJson(response){const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.detail||`Erro ${response.status}`);return data}
-
-    async function syncStatus(){try{const data=await readJson(await fetch(API_BASE+'/status'));active=data.active;statusBox.classList.toggle('off',!active);statusText.textContent=active?'ATIVA':'DESATIVADA';powerBtn.textContent=active?'DESATIVAR':'ATIVAR';}catch(error){statusBox.classList.add('off');statusText.textContent='OFFLINE';powerBtn.textContent='INDISPONÍVEL';showNotice(friendlyError(error))}}
-    function formatDate(value){return new Date(value).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'})}
-
-    // ---- Histórico (coluna amarela) com fixar/excluir ----
-    function savePinned(){ localStorage.setItem('spirit_pinned', JSON.stringify(pinned)); }
-    function togglePin(id, ev){
-      ev.stopPropagation();
-      if(pinned.includes(id)) pinned = pinned.filter(p=>p!==id); else pinned.push(id);
-      savePinned(); loadHistory();
+    function addTyping(label) {
+      const el = document.createElement('div');
+      el.className = 'typing';
+      el.setAttribute('aria-live', 'polite');
+      const span = document.createElement('span');
+      span.textContent = label || 'Pensando';
+      el.appendChild(span);
+      for (let i = 0; i < 3; i++) el.appendChild(document.createElement('i'));
+      messages.appendChild(el);
+      scrollDown();
+      return el;
     }
-    function deleteConversation(id, ev){
+
+    function renderMessages(items) {
+      messages.replaceChildren();
+      items.forEach(item => addMessage(item.content, item.role === 'user' ? 'user' : 'spirit'));
+    }
+
+    async function readJson(response) {
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.detail || `Erro ${response.status}`);
+      return data;
+    }
+
+    // ---- Status e histórico ----
+    async function syncStatus() {
+      try {
+        const data = await readJson(await fetch(API_BASE + '/status'));
+        active = data.active;
+        statusBox.classList.toggle('off', !active);
+        statusText.textContent = active ? 'ATIVA' : 'DESATIVADA';
+        powerBtn.textContent = active ? 'DESATIVAR' : 'ATIVAR';
+      } catch (error) {
+        statusBox.classList.add('off');
+        statusText.textContent = 'OFFLINE';
+        powerBtn.textContent = 'INDISPONÍVEL';
+        showNotice(friendlyError(error));
+      }
+    }
+
+    function formatDate(value) { return new Date(value).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }); }
+
+    // ---- Histórico ----
+    function savePinned() { localStorage.setItem('spirit_pinned', JSON.stringify(pinned)); }
+
+    function togglePin(id, ev) {
       ev.stopPropagation();
-      if(!confirm('Remover esta conversa da lista? (o histórico salvo no servidor não é apagado)')) return;
-      let hidden = JSON.parse(localStorage.getItem('spirit_hidden') || '[]');
-      hidden.push(id);
-      localStorage.setItem('spirit_hidden', JSON.stringify(hidden));
-      if(id === conversationId) newConversation();
+      if (pinned.includes(id)) pinned = pinned.filter(p => p !== id);
+      else pinned.push(id);
+      savePinned();
       loadHistory();
     }
 
-    async function loadHistory(){
-      try{
-        const data=await readJson(await fetch(API_BASE+'/conversations'));
-        const hidden = JSON.parse(localStorage.getItem('spirit_hidden') || '[]');
-        let items = data.conversations.filter(c=>!hidden.includes(c.conversation_id));
-        items.sort((a,b)=> (pinned.includes(b.conversation_id)?1:0) - (pinned.includes(a.conversation_id)?1:0));
-        history.replaceChildren();
-        if(!items.length){history.innerHTML='<p class="empty">Nenhuma conversa salva.</p>';return}
-        items.forEach(c=>{
-          const b=document.createElement('button'), date=document.createElement('span'), actions=document.createElement('span');
-          const isPinned = pinned.includes(c.conversation_id);
-          b.className='history-item'+(c.conversation_id===conversationId?' selected':'')+(isPinned?' pinned':'');
-          b.textContent=(isPinned?'★ ':'')+c.preview.slice(0,60);
-          date.className='history-date';date.textContent=formatDate(c.updated_at);b.appendChild(date);
+    function deleteConversation(id, ev) {
+      ev.stopPropagation();
+      if (!confirm('Remover esta conversa da lista? (o histórico salvo no servidor não é apagado)')) return;
+      let hidden = JSON.parse(localStorage.getItem('spirit_hidden') || '[]');
+      hidden.push(id);
+      localStorage.setItem('spirit_hidden', JSON.stringify(hidden));
+      if (id === conversationId) newConversation();
+      loadHistory();
+    }
 
-          actions.className='history-actions';
-          const pinBtn=document.createElement('button');pinBtn.className='icon-btn';pinBtn.textContent=isPinned?'📌':'📍';pinBtn.title='Fixar/desafixar';
-          pinBtn.addEventListener('click', ev=>togglePin(c.conversation_id, ev));
-          const delBtn=document.createElement('button');delBtn.className='icon-btn';delBtn.textContent='✕';delBtn.title='Excluir da lista';
-          delBtn.addEventListener('click', ev=>deleteConversation(c.conversation_id, ev));
+    async function loadHistory() {
+      try {
+        const data = await readJson(await fetch(API_BASE + '/conversations'));
+        const hidden = JSON.parse(localStorage.getItem('spirit_hidden') || '[]');
+        let items = data.conversations.filter(c => !hidden.includes(c.conversation_id));
+        items.sort((a, b) => (pinned.includes(b.conversation_id) ? 1 : 0) - (pinned.includes(a.conversation_id) ? 1 : 0));
+        history.replaceChildren();
+        if (!items.length) { history.innerHTML = '<p class="empty">Nenhuma conversa salva.</p>'; return; }
+        items.forEach(c => {
+          const b = document.createElement('button'),
+            date = document.createElement('span'),
+            actions = document.createElement('span');
+          const isPinned = pinned.includes(c.conversation_id);
+          b.className = 'history-item' + (c.conversation_id === conversationId ? ' selected' : '') + (isPinned ? ' pinned' :
+            '');
+          b.textContent = (isPinned ? '★ ' : '') + c.preview.slice(0, 60);
+          date.className = 'history-date';
+          date.textContent = formatDate(c.updated_at);
+          b.appendChild(date);
+
+          actions.className = 'history-actions';
+          const pinBtn = document.createElement('button');
+          pinBtn.className = 'icon-btn';
+          pinBtn.textContent = isPinned ? '📌' : '📍';
+          pinBtn.title = 'Fixar/desafixar';
+          pinBtn.addEventListener('click', ev => togglePin(c.conversation_id, ev));
+          const delBtn = document.createElement('button');
+          delBtn.className = 'icon-btn';
+          delBtn.textContent = '✕';
+          delBtn.title = 'Excluir da lista';
+          delBtn.addEventListener('click', ev => deleteConversation(c.conversation_id, ev));
           actions.append(pinBtn, delBtn);
           b.appendChild(actions);
 
-          b.addEventListener('click',()=>openConversation(c.conversation_id));
+          b.addEventListener('click', () => openConversation(c.conversation_id));
           history.appendChild(b);
         });
-      }catch(error){history.innerHTML='<p class="empty">Histórico indisponível.</p>'}
+      } catch (error) { history.innerHTML = '<p class="empty">Histórico indisponível.</p>'; }
     }
-    async function openConversation(id){try{clearNotice();const data=await readJson(await fetch(API_BASE+'/conversations/'+encodeURIComponent(id)+'/messages'));conversationId=id;localStorage.setItem('spirit_conversation_id',id);renderMessages(data.messages);clearReasoning();loadHistory()}catch(error){showNotice(friendlyError(error))}}
-    function newConversation(){conversationId=null;localStorage.removeItem('spirit_conversation_id');messages.replaceChildren();addMessage('Nova conversa iniciada. Como posso ajudar?','spirit');clearNotice();clearReasoning();loadHistory();input.focus()}
 
-    // ---- Chat com raciocínio separado ----
-    // O backend manda cada chunk como uma linha JSON: {"type":"reasoning"|"content","text":"..."}
-    // Raciocínio vai para o painel lateral; conteúdo final vai para o chat.
-    async function sendChat(text){
-      addMessage(text,'user');
-      const typing=addTyping('Pensando');
+    async function openConversation(id) {
+      try {
+        clearNotice();
+        const data = await readJson(await fetch(API_BASE + '/conversations/' + encodeURIComponent(id) + '/messages'));
+        conversationId = id;
+        localStorage.setItem('spirit_conversation_id', id);
+        renderMessages(data.messages);
+        clearReasoning();
+        loadHistory();
+      } catch (error) { showNotice(friendlyError(error)); }
+    }
+
+    function newConversation() {
+      conversationId = null;
+      localStorage.removeItem('spirit_conversation_id');
+      messages.replaceChildren();
+      addMessage('Nova conversa iniciada. Como posso ajudar?', 'spirit');
+      clearNotice();
+      clearReasoning();
+      loadHistory();
+      input.focus();
+    }
+
+    // ---- Chat (com raciocínio) ----
+    async function sendChat(text) {
+      addMessage(text, 'user');
+      const typing = addTyping('Pensando');
       addReasoning('SOLICITAÇÃO', text, true);
-      let answer=null;
-      let buffer='';
-      try{
-        const res=await fetch(API_BASE+'/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,conversation_id:conversationId})});
-        if(!res.ok)throw new Error((await res.json().catch(()=>({}))).detail||`Erro ${res.status}`);
-        const id=res.headers.get('X-Conversation-ID');
-        if(id){conversationId=id;localStorage.setItem('spirit_conversation_id',id)}
-        if(!res.body)throw new Error('A resposta não chegou em formato streaming.');
+      let answer = null;
+      let buffer = '';
+      try {
+        const res = await fetch(API_BASE + '/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text, conversation_id: conversationId })
+        });
+        if (!res.ok) throw new Error((await res.json().catch(() => ({}))).detail || `Erro ${res.status}`);
+        const id = res.headers.get('X-Conversation-ID');
+        if (id) { conversationId = id;
+          localStorage.setItem('spirit_conversation_id', id); }
+        if (!res.body) throw new Error('A resposta não chegou em formato streaming.');
 
-        const reader=res.body.getReader(),decoder=new TextDecoder();
-        let full='';
-        let reasoningEntry=null;
+        const reader = res.body.getReader(),
+          decoder = new TextDecoder();
+        let full = '';
+        let reasoningEntry = null;
 
-        while(true){
-          const {done,value}=await reader.read();
-          if(done)break;
-          buffer += decoder.decode(value, {stream:true});
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
           let lines = buffer.split('\n');
-          buffer = lines.pop(); // guarda linha incompleta para o próximo pedaço
+          buffer = lines.pop();
 
-          for(const line of lines){
-            if(!line.trim()) continue;
+          for (const line of lines) {
+            if (!line.trim()) continue;
             let chunk;
-            try{ chunk = JSON.parse(line); } catch(e){
-              // Fallback: backend antigo (texto puro, sem separar raciocínio) — trata tudo como conteúdo.
-              chunk = { type:'content', text: line };
+            try { chunk = JSON.parse(line); } catch (e) {
+              chunk = { type: 'content', text: line };
             }
-            if(chunk.type === 'reasoning'){
-              if(!reasoningEntry) reasoningEntry = addReasoning('RACIOCÍNIO', '', true);
-              reasoningEntry.innerHTML = '<span class="tag">RACIOCÍNIO</span>' + (reasoningEntry.textContent + chunk.text);
+            if (chunk.type === 'reasoning') {
+              if (!reasoningEntry) { reasoningEntry = addReasoning('RACIOCÍNIO', '', true);
+                reasoningEntry.dataset.raw = ''; }
+              reasoningEntry.dataset.raw += chunk.text;
+              reasoningEntry.innerHTML = '<span class="tag">RACIOCÍNIO</span>' + reasoningEntry.dataset.raw;
               reasoningBox.scrollTop = reasoningBox.scrollHeight;
-            } else if(chunk.type === 'content'){
+            } else if (chunk.type === 'content') {
               full += chunk.text;
-              if(!answer){typing.remove();answer=addMessage('', 'spirit')}
-              answer.querySelector('.content').textContent=full;
+              if (!answer) { typing.remove();
+                answer = addMessage('', 'spirit'); }
+              answer.querySelector('.content').textContent = full;
               scrollDown();
             }
           }
         }
-        if(!answer){typing.remove();addMessage('Não recebi uma resposta. Tente novamente.','spirit')}
+        if (!answer) { typing.remove();
+          addMessage('Não recebi uma resposta. Tente novamente.', 'spirit'); }
         addReasoning('CONCLUÍDO', 'resposta entregue', false);
         await loadHistory();
-      }catch(error){typing.remove();addMessage(friendlyError(error),'spirit');showNotice(friendlyError(error));addReasoning('ERRO', error.message, false)}
+      } catch (error) {
+        typing.remove();
+        addMessage(friendlyError(error), 'spirit');
+        showNotice(friendlyError(error));
+        addReasoning('ERRO', error.message, false);
+      }
     }
 
-    async function sendResearch(term){
-      addMessage(term,'user');
-      const typing=addTyping('Pesquisando na web');
+    async function sendResearch(term) {
+      addMessage(term, 'user');
+      const typing = addTyping('Pesquisando na web');
       addReasoning('PESQUISA WEB', 'buscando: ' + term, true);
-      try{
-        const res=await fetch(API_BASE+'/research',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({term})});
-        const data=await readJson(res);
+      try {
+        const res = await fetch(API_BASE + '/research', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ term })
+        });
+        const data = await readJson(res);
         typing.remove();
-        const box=addMessage(data.summary,'spirit');
+        const box = addMessage(data.summary, 'spirit');
         addSources(box, data.sources);
-        addReasoning('FONTES', (data.sources||[]).length + ' resultado(s) analisado(s)', false);
-      }catch(error){typing.remove();addMessage(friendlyError(error),'spirit');showNotice(friendlyError(error));addReasoning('ERRO', error.message, false)}
-    }
-
-    async function sendYoutube(term){
-      addMessage(term,'user');
-      const typing=addTyping('Assistindo vídeos no YouTube');
-      addReasoning('PESQUISA YOUTUBE', 'buscando vídeos sobre: ' + term, true);
-      try{
-        const res=await fetch(API_BASE+'/research/youtube',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({term, max_results:3})});
-        const data=await readJson(res);
+        addReasoning('FONTES', (data.sources || []).length + ' resultado(s) analisado(s)', false);
+      } catch (error) {
         typing.remove();
-        const box=addMessage(data.summary,'spirit');
-        const sources=(data.videos||[]).map(v=>({title:v.title,url:v.url}));
+        addMessage(friendlyError(error), 'spirit');
+        showNotice(friendlyError(error));
+        addReasoning('ERRO', error.message, false);
+      }
+    }
+
+    async function sendYoutube(term) {
+      addMessage(term, 'user');
+      const typing = addTyping('Assistindo vídeos no YouTube');
+      addReasoning('PESQUISA YOUTUBE', 'buscando vídeos sobre: ' + term, true);
+      try {
+        const res = await fetch(API_BASE + '/research/youtube', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ term, max_results: 3 })
+        });
+        const data = await readJson(res);
+        typing.remove();
+        const box = addMessage(data.summary, 'spirit');
+        const sources = (data.videos || []).map(v => ({ title: v.title, url: v.url }));
         addSources(box, sources);
-        addReasoning('VÍDEOS', (data.videos||[]).length + ' vídeo(s) com transcrição analisado(s)', false);
-      }catch(error){typing.remove();addMessage(friendlyError(error),'spirit');showNotice(friendlyError(error));addReasoning('ERRO', error.message, false)}
+        addReasoning('VÍDEOS', (data.videos || []).length + ' vídeo(s) com transcrição analisado(s)', false);
+      } catch (error) {
+        typing.remove();
+        addMessage(friendlyError(error), 'spirit');
+        showNotice(friendlyError(error));
+        addReasoning('ERRO', error.message, false);
+      }
     }
 
-    async function send(){
-      const text=input.value.trim();
-      if(!text||!active||sending)return;
-      clearNotice();sending=true;sendBtn.disabled=true;input.disabled=true;
-      input.value='';
-      if(mode==='research'){ await sendResearch(text); } else if(mode==='youtube'){ await sendYoutube(text); } else { await sendChat(text); }
-      sending=false;sendBtn.disabled=false;input.disabled=false;input.focus();
+    async function send() {
+      const text = input.value.trim();
+      if (!text || !active || sending) return;
+      clearNotice();
+      sending = true;
+      sendBtn.disabled = true;
+      input.disabled = true;
+      input.value = '';
+      if (mode === 'research') { await sendResearch(text); } else if (mode === 'youtube') { await sendYoutube(text); } else { await
+          sendChat(text); }
+      sending = false;
+      sendBtn.disabled = false;
+      input.disabled = false;
+      input.focus();
     }
 
-    sendBtn.addEventListener('click',send);
-    input.addEventListener('keydown',event=>{if(event.key==='Enter')send()});
-    document.querySelector('#newChatBtn').addEventListener('click',newConversation);
-    powerBtn.addEventListener('click',async()=>{try{const data=await readJson(await fetch(API_BASE+'/power',{method:'POST'}));active=data.active;statusBox.classList.toggle('off',!active);statusText.textContent=active?'ATIVA':'DESATIVADA';powerBtn.textContent=active?'DESATIVAR':'ATIVAR';clearNotice()}catch(error){showNotice(friendlyError(error))}});
+    sendBtn.addEventListener('click', send);
+    input.addEventListener('keydown', event => { if (event.key === 'Enter') send(); });
+    document.querySelector('#newChatBtn').addEventListener('click', newConversation);
+    powerBtn.addEventListener('click', async () => {
+      try {
+        const data = await readJson(await fetch(API_BASE + '/power', { method: 'POST' }));
+        active = data.active;
+        statusBox.classList.toggle('off', !active);
+        statusText.textContent = active ? 'ATIVA' : 'DESATIVADA';
+        powerBtn.textContent = active ? 'DESATIVAR' : 'ATIVAR';
+        clearNotice();
+      } catch (error) { showNotice(friendlyError(error)); }
+    });
 
-    syncStatus();loadHistory();
+    // ================================================================
+    // ============= PAINEL DE CONHECIMENTO: MELHORIAS ================
+    // ================================================================
+
+    // ---- 1. Drag & Drop + múltiplos arquivos ----
+    dropZone.addEventListener('click', (e) => {
+      if (e.target.tagName !== 'BUTTON' && e.target.closest('.action-row') === null) {
+        fileInput.click();
+      }
+    });
+    fileSelectTrigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      fileInput.click();
+    });
+
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+    dropZone.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+    });
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      if (e.dataTransfer.files.length) {
+        fileInput.files = e.dataTransfer.files;
+        uploadStatus.textContent = `${fileInput.files.length} arquivo(s) selecionado(s). Clique em "Indexar selecionados".`;
+        uploadStatus.className = 'knowledge-status';
+      }
+    });
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length) {
+        uploadStatus.textContent = `${fileInput.files.length} arquivo(s) selecionado(s). Clique em "Indexar selecionados".`;
+        uploadStatus.className = 'knowledge-status';
+      }
+    });
+
+    // ---- 2. Upload com progresso, múltiplo e cancelamento ----
+    function uploadFileWithXHR(file, fileIndex, total, signal) {
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', API_BASE + '/knowledge/documents');
+
+        xhr.upload.onprogress = (event) => {
+          if (event.lengthComputable) {
+            const filePercent = (event.loaded / event.total) * 100;
+            const overallPercent = ((fileIndex - 1) / total) * 100 + (filePercent / total);
+            uploadProgress.value = Math.min(overallPercent, 100);
+          }
+        };
+
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              const data = JSON.parse(xhr.responseText);
+              resolve(data);
+            } catch (_) {
+              resolve({ message: 'Enviado com sucesso' });
+            }
+          } else {
+            let errMsg = 'Erro no upload';
+            try {
+              const data = JSON.parse(xhr.responseText);
+              errMsg = data.detail || errMsg;
+            } catch (_) {}
+            reject(new Error(errMsg));
+          }
+        };
+        xhr.onerror = () => reject(new Error('Falha de rede ao enviar arquivo.'));
+        xhr.ontimeout = () => reject(new Error('Tempo limite excedido.'));
+        xhr.timeout = 120000;
+
+        const abortHandler = () => {
+          xhr.abort();
+          reject(new Error('Cancelado pelo usuário.'));
+        };
+        signal.addEventListener('abort', abortHandler);
+
+        const formData = new FormData();
+        formData.append('file', file);
+        xhr.send(formData);
+      });
+    }
+
+    async function uploadFiles(files) {
+      if (isUploading) return;
+      if (!files || files.length === 0) {
+        uploadStatus.textContent = 'Nenhum arquivo selecionado.';
+        uploadStatus.className = 'knowledge-status error';
+        return;
+      }
+
+      const allowedExt = ['.pdf', '.txt', '.md', '.csv'];
+      const allowedTypes = ['application/pdf', 'text/plain', 'text/csv', 'text/markdown'];
+      const validFiles = [];
+      const errors = [];
+
+      for (const file of files) {
+        const ext = '.' + file.name.split('.').pop().toLowerCase();
+        if (!allowedExt.includes(ext) || !allowedTypes.includes(file.type)) {
+          errors.push(`"${file.name}" (formato não suportado)`);
+          continue;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+          errors.push(`"${file.name}" (excede 10 MB)`);
+          continue;
+        }
+        validFiles.push(file);
+      }
+
+      if (errors.length) {
+        uploadStatus.textContent = '⚠️ ' + errors.join('; ');
+        uploadStatus.className = 'knowledge-status error';
+        if (validFiles.length === 0) return;
+      }
+
+      uploadCanceled = false;
+      isUploading = true;
+      uploadAbortController = new AbortController();
+      uploadBtn.disabled = true;
+      cancelUploadBtn.style.display = 'inline-block';
+      uploadProgress.style.display = 'block';
+      uploadProgress.value = 0;
+      uploadStatus.className = 'knowledge-status';
+
+      const total = validFiles.length;
+      const results = [];
+
+      try {
+        for (let i = 0; i < total; i++) {
+          if (uploadCanceled) {
+            uploadStatus.textContent = '⏹️ Upload cancelado pelo usuário.';
+            uploadStatus.className = 'knowledge-status error';
+            break;
+          }
+          const file = validFiles[i];
+          uploadStatus.textContent = `Enviando (${i+1}/${total}): ${file.name}`;
+          try {
+            const data = await uploadFileWithXHR(file, i + 1, total, uploadAbortController.signal);
+            results.push({ file: file.name, status: '✅', data });
+          } catch (err) {
+            if (err.message === 'Cancelado pelo usuário.') {
+              uploadStatus.textContent = '⏹️ Upload cancelado.';
+              uploadStatus.className = 'knowledge-status error';
+              uploadCanceled = true;
+              break;
+            }
+            results.push({ file: file.name, status: '❌', error: err.message });
+          }
+        }
+
+        if (!uploadCanceled) {
+          const successes = results.filter(r => r.status === '✅').length;
+          const failures = results.filter(r => r.status === '❌').length;
+          if (successes === total) {
+            uploadStatus.textContent = `✅ Todos os ${total} arquivo(s) indexados com sucesso!`;
+            uploadStatus.className = 'knowledge-status success';
+          } else {
+            let msg = `Enviados: ${successes} ok, ${failures} falhas.`;
+            const failedFiles = results.filter(r => r.status === '❌').map(r => `${r.file} (${r.error})`).join('; ');
+            if (failedFiles) msg += ' Erros: ' + failedFiles;
+            uploadStatus.textContent = '⚠️ ' + msg;
+            uploadStatus.className = 'knowledge-status error';
+          }
+          fileInput.value = '';
+          if (successes > 0) listDocuments();
+        }
+      } catch (err) {
+        uploadStatus.textContent = '❌ Erro inesperado: ' + err.message;
+        uploadStatus.className = 'knowledge-status error';
+      } finally {
+        isUploading = false;
+        uploadBtn.disabled = false;
+        cancelUploadBtn.style.display = 'none';
+        if (!uploadCanceled) {
+          setTimeout(() => { uploadProgress.style.display = 'none'; }, 2000);
+        }
+        uploadAbortController = null;
+      }
+    }
+
+    cancelUploadBtn.addEventListener('click', () => {
+      if (uploadAbortController) {
+        uploadCanceled = true;
+        uploadAbortController.abort();
+        cancelUploadBtn.disabled = true;
+        uploadStatus.textContent = 'Cancelando...';
+        uploadStatus.className = 'knowledge-status error';
+        setTimeout(() => { cancelUploadBtn.disabled = false; }, 1000);
+      }
+    });
+
+    uploadBtn.addEventListener('click', () => {
+      uploadFiles(fileInput.files);
+    });
+
+    // ---- 3. Listar documentos ----
+    async function listDocuments() {
+      documentsList.innerHTML = '<div class="doc-empty">Carregando...</div>';
+      try {
+        const res = await fetch(API_BASE + '/knowledge/documents');
+        if (res.status === 404) {
+          documentsList.innerHTML =
+            '<div class="doc-empty">⚠️ O backend ainda não implementa listagem (GET /knowledge/documents).</div>';
+          return;
+        }
+        const data = await readJson(res);
+        const docs = data.documents || data.results || [];
+        if (!docs.length) {
+          documentsList.innerHTML = '<div class="doc-empty">Nenhum documento indexado ainda.</div>';
+          return;
+        }
+        documentsList.innerHTML = '';
+        docs.forEach(doc => {
+          const div = document.createElement('div');
+          div.className = 'doc-item';
+          const nameSpan = document.createElement('span');
+          nameSpan.className = 'name';
+          nameSpan.textContent = doc.filename || doc.name || doc.id || 'Documento';
+          const delBtn = document.createElement('button');
+          delBtn.className = 'del-btn';
+          delBtn.textContent = '✕';
+          delBtn.title = 'Excluir (se o backend suportar)';
+          delBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            if (!confirm(`Remover "${nameSpan.textContent}"?`)) return;
+            try {
+              const id = doc.id || doc.filename;
+              if (!id) { throw new Error('ID não disponível'); }
+              const delRes = await fetch(API_BASE + '/knowledge/documents/' + encodeURIComponent(id), {
+                method: 'DELETE'
+              });
+              if (!delRes.ok) throw new Error((await delRes.json().catch(() => ({}))).detail || 'Falha na exclusão');
+              listDocuments();
+            } catch (err) {
+              alert('Erro ao excluir: ' + err.message);
+            }
+          });
+          div.append(nameSpan, delBtn);
+          documentsList.appendChild(div);
+        });
+      } catch (error) {
+        documentsList.innerHTML = '<div class="doc-empty">❌ ' + friendlyError(error) + '</div>';
+      }
+    }
+
+    listDocsBtn.addEventListener('click', listDocuments);
+    refreshDocsBtn.addEventListener('click', listDocuments);
+
+    // ---- 4. Adicionar blog ----
+    addBlogBtn.addEventListener('click', async () => {
+      const url = blogUrlInput.value.trim();
+      if (!url) {
+        blogStatus.textContent = 'Digite uma URL.';
+        blogStatus.className = 'knowledge-status error';
+        return;
+      }
+      try { new URL(url); } catch (_) {
+        blogStatus.textContent = 'URL inválida.';
+        blogStatus.className = 'knowledge-status error';
+        return;
+      }
+
+      addBlogBtn.disabled = true;
+      blogStatus.textContent = 'Adicionando...';
+      blogStatus.className = 'knowledge-status';
+
+      try {
+        const res = await fetch(API_BASE + '/knowledge/blogs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Erro ao adicionar blog');
+        blogStatus.textContent = '✅ Blog adicionado!';
+        blogStatus.className = 'knowledge-status success';
+        blogUrlInput.value = '';
+      } catch (err) {
+        blogStatus.textContent = '❌ ' + err.message;
+        blogStatus.className = 'knowledge-status error';
+      } finally {
+        addBlogBtn.disabled = false;
+      }
+    });
+
+    // ---- 5. Atualizar blogs ----
+    refreshBlogsBtn.addEventListener('click', async () => {
+      refreshBlogsBtn.disabled = true;
+      blogStatus.textContent = 'Atualizando...';
+      blogStatus.className = 'knowledge-status';
+
+      try {
+        const res = await fetch(API_BASE + '/knowledge/blogs/refresh', { method: 'POST' });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Erro ao atualizar');
+        const count = data.results?.length || 0;
+        blogStatus.textContent = '✅ Blogs atualizados! ' + count + ' blog(s) processado(s).';
+        blogStatus.className = 'knowledge-status success';
+      } catch (err) {
+        blogStatus.textContent = '❌ ' + err.message;
+        blogStatus.className = 'knowledge-status error';
+      } finally {
+        refreshBlogsBtn.disabled = false;
+      }
+    });
+
+    // Inicialização
+    syncStatus();
+    loadHistory();
   </script>
 </body>
 </html>
